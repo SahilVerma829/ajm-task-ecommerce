@@ -45,7 +45,6 @@ const Wishlist = () => {
 		} else {
 			console.log('user not get');
 		}
-		console.log('total', total);
 	}, []);
 
 	return (

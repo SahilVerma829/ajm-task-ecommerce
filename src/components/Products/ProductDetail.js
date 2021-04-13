@@ -191,7 +191,7 @@ const ProductDetail = ({ match }) => {
                             <Rating value={product.rating} text={`${product.numReviews} reviews`} />
                         </ListGroup.Item> */}
 							<ListGroup.Item className="my-4">
-								Description: Rs.{product.description}
+								Description: {product.description}
 							</ListGroup.Item>
 							<ListGroup.Item
 								style={{ color: '#7971ea', fontSize: '1.3rem' }}

@@ -3,10 +3,6 @@ import { Link, useHistory } from 'react-router-dom';
 import Avatar from '@material-ui/core/Avatar';
 import Button from '@material-ui/core/Button';
 import TextField from '@material-ui/core/TextField';
-import FormControlLabel from '@material-ui/core/FormControlLabel';
-import Checkbox from '@material-ui/core/Checkbox';
-// import Link from '@material-ui/core/Link';
-import Shoppingimg from '../../images/welcome1.jpg';
 import Grid from '@material-ui/core/Grid';
 import LockOutlinedIcon from '@material-ui/icons/LockOutlined';
 import Typography from '@material-ui/core/Typography';
@@ -14,19 +10,18 @@ import { makeStyles } from '@material-ui/core/styles';
 import App from '../../App';
 import Container from '@material-ui/core/Container';
 import CssBaseline from '@material-ui/core/CssBaseline';
+import FormHelperText from '@material-ui/core/FormHelperText';
+
 import { signup } from '../../api/userapi';
-import Signin from './Signin';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+
+import { ValidateSignUpForm } from './ValidateForm';
 
 const useStyles = makeStyles((theme) => ({
-	root: {
-		margin: theme.spacing(15, 0),
-		display: 'flex',
-		maxHeight: '70vh',
-	},
-
 	paper: {
-		margin: theme.spacing(8, 4),
-		marginTop: theme.spacing(10),
+		margin: theme.spacing(3),
+		marginTop: theme.spacing(8),
 		marginBottom: theme.spacing(10),
 		display: 'flex',
 		flexDirection: 'column',
@@ -38,7 +33,7 @@ const useStyles = makeStyles((theme) => ({
 	},
 	form: {
 		width: '100%', // Fix IE 11 issue.
-		marginTop: theme.spacing(0),
+		marginTop: theme.spacing(2),
 	},
 	submit: {
 		margin: theme.spacing(3, 0, 2),
@@ -46,8 +41,8 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 const SignUp = (props) => {
-	let history = useHistory();
 	const classes = useStyles();
+	let history = useHistory();
 
 	const [formData, setFormData] = useState({
 		firstName: '',
@@ -55,36 +50,52 @@ const SignUp = (props) => {
 		email: '',
 		password: '',
 	});
+	const [errors, setErrors] = useState({});
 
 	//destructure
-
 	const { firstName, lastName, email, password } = formData;
+
+	//onChange method
 	const name = firstName + ' ' + lastName;
 	const onChange = (e) => {
-		setFormData({ ...formData, [e.target.name]: e.target.value });
+		const { name, value } = e.target;
+		setFormData({ ...formData, [name]: value });
 	};
 
 	const onSubmit = (e) => {
 		e.preventDefault();
-		signup({ name, email, password })
-			//  console.log( signup({name,email,password}))
-			.then((err) => {
-				if (err) {
-					console.log('error : ', err);
-				} else {
-					console.log('User Inserted');
-					history.push('/signin');
-					//  <Link to= "/signin" component={Signin} />
-				}
-			})
-			.catch((err) => console.log('error in signup', err));
+		setErrors(ValidateSignUpForm(formData));
+		console.log(ValidateSignUpForm(formData));
+		if (!errors.name && !errors.email && !errors.password) {
+			console.log('signup');
+			signup({ name, email, password })
+				.then((data) => {
+					if (!data.user) {
+						console.log('error : ', data);
+						toast.error(`${data.message}`, {
+							position: 'top-center',
+						});
+					} else {
+						console.log('User Inserted', data);
+						toast.success(`Signup Successful! please Login`, {
+							position: 'top-center',
+						});
+						// history.push('/signin');
+						//  <Link to= "/signin" component={Signin} />
+					}
+				})
+				.catch(
+					(err) => console.log('error in signup', err),
+					console.log('error', errors)
+				);
+		}
 	};
 
 	return (
 		<App>
 			<Container component="main" maxWidth="xs">
 				<CssBaseline />
-				<div className="card my-5 overflow-hidden rounded-3 ">
+				<div className="card my-5 rounded-3 ">
 					<div className={classes.paper}>
 						<Avatar className={classes.avatar}>
 							<LockOutlinedIcon />
@@ -102,24 +113,31 @@ const SignUp = (props) => {
 							onSubmit={onSubmit}
 						>
 							<Grid container spacing={2}>
-								<Grid item xs={12} sm={6}>
+								<Grid className="pb-0" item xs={12} sm={6}>
 									<TextField
-										className="p-0"
 										autoComplete="fname"
 										name="firstName"
-										variant="outlined"
 										required
 										fullWidth
 										id="firstName"
 										label="First Name"
+										autoFocus
 										value={firstName}
 										onChange={onChange}
-										autoFocus
+										{...(errors.name && {
+											error: true,
+											helperText: errors.name,
+										})}
 									/>
+									{/* <FormHelperText
+										error
+										id="component-error-text"
+									>
+										{errors.name && errors.name}
+									</FormHelperText> */}
 								</Grid>
 								<Grid item xs={12} sm={6}>
 									<TextField
-										variant="outlined"
 										required
 										fullWidth
 										id="lastName"
@@ -132,7 +150,6 @@ const SignUp = (props) => {
 								</Grid>
 								<Grid item xs={12}>
 									<TextField
-										variant="outlined"
 										required
 										fullWidth
 										id="email"
@@ -141,11 +158,20 @@ const SignUp = (props) => {
 										autoComplete="email"
 										value={email}
 										onChange={onChange}
+										{...(errors.email && {
+											error: true,
+											helperText: errors.email,
+										})}
 									/>
+									{/* <FormHelperText
+										error
+										id="component-error-text"
+									>
+										{errors.email && errors.email}
+									</FormHelperText> */}
 								</Grid>
 								<Grid item xs={12}>
 									<TextField
-										variant="outlined"
 										required
 										fullWidth
 										name="password"
@@ -155,7 +181,17 @@ const SignUp = (props) => {
 										autoComplete="current-password"
 										value={password}
 										onChange={onChange}
+										{...(errors.password && {
+											error: true,
+											helperText: errors.password,
+										})}
 									/>
+									{/* <FormHelperText
+										error
+										id="component-error-text"
+									>
+										{errors.password && errors.password}
+									</FormHelperText> */}
 								</Grid>
 							</Grid>
 							<Button
@@ -183,6 +219,7 @@ const SignUp = (props) => {
 					</div>
 				</div>
 			</Container>
+			<ToastContainer />
 		</App>
 	);
 };

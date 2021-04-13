@@ -34,28 +34,32 @@ import { API } from '../backend';
 // };
 
 export const signup = (user) => {
-	return fetch(`${API}/user/signup`, {
-		method: 'POST',
-		headers: {
-			// Accept : "application/json",
-			'Content-Type': 'application/x-www-form-urlencoded',
-		},
-		body: new URLSearchParams({
-			name: user.name,
-			email: user.email,
-			password: user.password,
-		}),
-	})
-		.then((response) => {
-			console.log('response', response);
-			if (response.ok) {
-				return response.json();
-			} else {
-				throw new Error('Something went wrong ...');
-			}
+	console.log('signup');
+	return (
+		fetch(`${API}/user/signup`, {
+			method: 'POST',
+			headers: {
+				// Accept : "application/json",
+				'Content-Type': 'application/x-www-form-urlencoded',
+			},
+			body: new URLSearchParams({
+				name: user.name,
+				email: user.email,
+				password: user.password,
+			}),
 		})
-		.then((result) => console.log('result', result))
-		.catch((error) => console.log('error', error));
+			.then((response) => {
+				// if (response.ok) {
+				return response.json();
+				// } else {
+				// throw new Error('Something went wrong ...');
+				// }
+			})
+			// .then((result) => {
+			// 	return result, console.log('result', result);
+			// })
+			.catch((error) => alert(error))
+	);
 	// .then(response => {
 	//     return response.json();
 	//     console.log(response);

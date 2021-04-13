@@ -4,16 +4,15 @@ import Avatar from '@material-ui/core/Avatar';
 import Button from '@material-ui/core/Button';
 import CssBaseline from '@material-ui/core/CssBaseline';
 import TextField from '@material-ui/core/TextField';
-
-// import Link from '@material-ui/core/Link';
+import FormHelperText from '@material-ui/core/FormHelperText';
 import Grid from '@material-ui/core/Grid';
-// import Box from '@material-ui/core/Box';
 import LockOutlinedIcon from '@material-ui/icons/LockOutlined';
 import Typography from '@material-ui/core/Typography';
 import { makeStyles } from '@material-ui/core/styles';
 import Container from '@material-ui/core/Container';
 import App from '../../App';
 import { authenticate, isAuthenticated, signin } from '../../api/userapi';
+import { ValidateSignInForm } from './ValidateForm';
 
 const useStyles = makeStyles((theme) => ({
 	paper: {
@@ -38,15 +37,15 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 const Signin = () => {
+	let history = useHistory();
 	const [users, setUsers] = useState();
 	const [values, setValues] = useState({
 		email: '',
 		password: '',
-		error: '',
-		loading: false,
+
 		didRedirect: false,
 	});
-	let history = useHistory();
+	const [errors, setErrors] = useState({});
 
 	const { email, password, error, loading, didRedirect } = values;
 	const onChange = (e) => {
@@ -72,7 +71,7 @@ const Signin = () => {
 
 	const onSubmit = (e) => {
 		e.preventDefault();
-		setValues({ ...values, error: false, loading: true });
+		setErrors(ValidateSignInForm(values));
 		signin({ email, password })
 			.then((data) => {
 				console.log('data', data);
@@ -138,7 +137,6 @@ const Signin = () => {
 								onSubmit={onSubmit}
 							>
 								<TextField
-									variant="outlined"
 									margin="normal"
 									required
 									fullWidth
@@ -150,8 +148,10 @@ const Signin = () => {
 									value={email}
 									onChange={onChange}
 								/>
+								<FormHelperText error id="component-error-text">
+									{errors.email && errors.email}
+								</FormHelperText>
 								<TextField
-									variant="outlined"
 									margin="normal"
 									required
 									fullWidth
@@ -163,7 +163,9 @@ const Signin = () => {
 									value={password}
 									onChange={onChange}
 								/>
-
+								<FormHelperText error id="component-error-text">
+									{errors.password && errors.password}
+								</FormHelperText>
 								<Button
 									type="submit"
 									fullWidth
